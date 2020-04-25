@@ -1,0 +1,54 @@
+{
+  "name": "CARS",
+  "struct_Name": "Cars",
+  "template": {
+    "properties": [
+      { "key": "pk" },
+      { "key": "Brand" },
+      { "key": "Model" },
+      { "key": "Year" },
+      { "key": "Category" },
+      { "key": "Cylinders" },
+      { "key": "HorsePower" },
+      { "key": "Navigation" },
+      { "key": "Price" }
+    ],
+    "create_table": "CREATE TEMPORARY TABLE CARS(\n\tpk int not null\n\t\tprimary key,\n\tbrand varchar(25),\n\tmodel varchar(25),\n\tyear int,\n\tcategory varchar(25),\n\tcylinders int,\n\tHorsePower int, \n\tNavigation varchar(25),Price numeric(8,2));\n\n",
+    "table_name": "CARS"
+  },
+  "views": [
+    {
+      "name": "brand|category(COUNT)",
+      "fields": [
+        "brand",
+        "category"
+      ],
+      "operation": "COUNT",
+      "aggregationField": "pk",
+      "SQLTable": "CREATE TEMPORARY TABLE tempTbl(brand varchar(25), cateogry varchar(25), COUNTpk int)",
+      "frequency": 200
+    },
+    {
+      "name": "brand|category|cylinders(COUNT)",
+      "fields": [
+        "brand",
+        "category",
+        "cylinders"
+      ],
+      "operation": "COUNT",
+      "aggregationField": "pk",
+      "SQLTable": "CREATE TEMPORARY TABLE tempTbl(brand varchar(25), cateogry varchar(25), cylinders int, COUNTpk int)",
+      "frequency": 26
+    },
+    {
+      "name": "brand(COUNT)",
+      "fields": [
+        "brand"
+      ],
+      "operation": "COUNT",
+      "aggregationField": "pk",
+      "SQLTable": "CREATE TEMPORARY TABLE tempTbl(brand varchar(25), COUNTpk int)",
+      "frequency": 19
+    }
+  ]
+}

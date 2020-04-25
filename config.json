@@ -1,0 +1,17 @@
+{
+  "recordsSlice": 1000,
+  "cacheEvictionPolicy": "FIFO",
+  "maxCacheSize": 3,
+  "cacheSlice": 400,
+  "autoCacheSlice": "auto",
+  "maxGbSize": 100,
+  "redisPort": 6379,
+  "redisIP": "127.0.0.1",
+  "blockchainIP": "http://localhost:8545",
+  "sql":  {
+    "host": "localhost",
+    "user": "sqlUser",
+    "password": "yourPassword",
+    "database": "yourDatabaseName"},
+  "cacheEnabled": true
+}

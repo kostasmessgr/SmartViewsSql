@@ -1,0 +1,59 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataHandler interface</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+<body onload="pageLoad()">
+    <div class="container">
+        <h1 style="text-align: center; margin-top: 1.5em;">Blockchain data warehouse status</h1>
+        <div class="row">
+            <div class="col-lg"></div>
+            <div class="col-lg" style="text-align: center">
+                <br>
+                <br>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Service</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row">Blockchain</th>
+                        <% if(blockchainStatus === false) {%>
+                            <td style="color: red">Not running</td>
+                        <%} else {%>
+                        <td style="color: limegreen">OK</td>
+                        <%}%>
+                    </tr>
+                    <tr>
+                        <th scope="row">mySQL</th>
+                        <% if(sqlStatus === false) {%>
+                            <td style="color: red">Not running</td>
+                        <%} else {%>
+                            <td style="color: limegreen">OK</td>
+                        <%}%>
+                    </tr>
+                    <tr>
+                        <th scope="row">Redis cache</th>
+                        <% if(redisStatus === false) {%>
+                            <td style="color: red">Not running</td>
+                        <%} else {%>
+                            <td style="color: limegreen">OK</td>
+                        <%}%>
+                    </tr>
+                    </tbody>
+                </table>
+                <a href="/dashboard" target="_blank"> <button class="btn btn-primary">Go to dashboard</button></a>
+            </div>
+            <div class="col-lg"></div>
+        <br>
+        <br>
+    </div>
+    <script src="js/jquery-3.3.1.min.js"></script>
+</body>

@@ -1,0 +1,21 @@
+{
+    "recordsSlice": 1000,
+    "cacheEvictionPolicy": "cubeDistance",
+    "calculationCostFunction": "costFunction",
+    "maxCacheSize": 1000000000000,
+    "maxCacheSizeInKB": 759180,
+    "cacheSlice": 2,
+    "autoCacheSlice": "auto",
+    "maxGbSize": 100000,
+    "redisPort": 6379,
+    "redisIP": "127.0.0.1",
+    "blockchainIP": "http://localhost:8545",
+    "sql": {
+        "host": "localhost",
+        "user": "root",
+        "password": "KostisMessanakis",
+        "database": "thesis"
+    },
+    "cacheEnabled": true,
+    "logging": false
+}

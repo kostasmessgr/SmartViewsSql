@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= name %></title>
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+    <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
+    <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://raw.githubusercontent.com/daneden/animate.css/master/animate.css" rel="stylesheet" type="text/css">
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+</head>
+<body>
+<div id="wrapper">
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand">Blockchain data warehouse</a>
+        </div>
+        <ul class="nav navbar-top-links navbar-right">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-tasks">
+                    <li style="display: none;" id="pbLi">
+                        <a href="#">
+                            <div>
+                                <p>
+                                    <strong id="taskName">Data input</strong>
+                                    <span class="pull-right text-muted taskComp">40% Complete</span>
+                                </p>
+                                <div class="progress progress-striped active">
+                                    <div class="progress-bar progress-bar-success pb" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%" id="pb">
+                                        <span class="sr-only taskComp">40% Complete (success)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav navbar-collapse">
+                <ul class="nav" id="side-menu">
+                    <li>
+                        <a href="/dashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header"><%= name %></h1>
+                <%if(address !== "0"){%>
+                <p style="color: green; font-weight: bold"><%= address %></p>
+                <%} else {%>
+                    <p style="color: red; font-weight: bold">Not Deployed</p>
+                <%}%>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Add data
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <% for(let i = 0; i < template.properties.length; i++) {%>
+                                            <label><%=template.properties[i].key%></label>
+                                            <input class="form-control" id="<%=template.properties[i].key%>">
+                                        <%}%>
+                                    </div>
+                                    <%if(address !== "0"){%>
+                                    <button class="btn btn-primary" id="addFact">Add Fact</button>
+                                    <button class="btn btn-primary disabled" id="addFactFromFile">Add data from file</button>
+                                    <%} else {%>
+                                    <button class="btn btn-primary disabled" id="addFact">Add Fact</button>
+                                    <button class="btn btn-default disabled">Reset</button>
+                                    <%}%>
+                                <br>
+                                <label>Add data from file</label>
+                                <input type="file" id="dataset">
+                            </div>
+                            <div class="col-lg-6">
+                                <label>Output</label>
+                                <textarea readonly id="output" class="form-control" rows="7"></textarea>
+                                <br>
+                                <div class="inputProgress" style="visibility: hidden">
+                                <div class="progress progress-striped active">
+                                    <div class="progress-bar progress-bar-success pb" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%" id="pb">
+                                        <span class="sr-only taskComp"></span>
+                                    </div>
+                                </div>
+                                <p>
+                                    <strong id="taskName">Data input</strong>
+                                    <span class="pull-right text-muted taskComp"></span>
+                                </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Get data</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>ID</label>
+                                    <input class="form-control" id="factId">
+                                </div>
+                                <%if(address !== "0"){%>
+                                    <button class="btn btn-primary" id="buttonGet">Get Fact</button>
+                                    <button class="btn btn-primary" id="buttonGetAll">Get All facts</button>
+                                <%} else {%>
+                                    <button class="btn btn-primary disabled" id="getFact">Get Fact</button>
+                                    <button class="btn btn-primary disabled" id="buttonGetAll">Get All facts</button>
+                                <%}%>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>Output</label>
+                                <textarea readonly id="outputGet" class="form-control" rows="7"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">View Materialization</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Select view</label>
+                                    <select class="form-control" id="viewName">
+                                        <% for(let i = 0; i < readyViews.length; i++) {%>
+                                        <option><%=readyViews[i]%></option>
+                                        <%}%>
+                                    </select>
+                                </div>
+                                <div class="tblResults">
+                                </div>
+                                <%if(address !== "0"){%>
+                                    <button class="btn btn-primary" id="buttonFetchView">Fetch view</button>
+                                <%} else {%>
+                                    <button class="btn btn-primary disabled" id="buttonFetchView">Fetch view</button>
+                                <%}%>
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>Output</label>
+                                <textarea readonly id="outputView" class="form-control" rows="7"></textarea>
+                                <div class="panel panel-default" style="margin-top: 2em;">
+                                    <div class="panel-heading">Materialization steps</div>
+                                    <div class="panel-body">
+                                <div id="steps" style="text-align: center"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 timesTbl">
+                                    <table class="table table-bordered">
+                                    <tr>
+                                        <th>Total time (s)</th>
+                                        <th>All total time(s)</th>
+                                        <th>Blockchain time (s)</th>
+                                        <th>SQL time (s)</th>
+                                        <th>Cache save time (s)</th>
+                                        <th>Cache retrieve time (s)</th>
+                                    </tr>
+                                    <tr>
+                                        <td id="total"></td>
+                                        <td id="allTotal"></td>
+                                        <td id="bc"></td>
+                                        <td id="sql"></td>
+                                        <td id="cacheSave"></td>
+                                        <td id="cacheRetrieve"></td>
+                                    </tr>
+                                    </table>
+                                <br>
+                                <div class="progress" style="visibility: hidden">
+                                    <div class="progress-bar progress-bar-success" role="progressbar" id="bcTime">
+                                        Blockchain fetch
+                                    </div>
+                                    <div class="progress-bar progress-bar-warning" role="progressbar" id="sqlTime">
+                                        SQL Compute
+                                    </div>
+                                    <div class="progress-bar progress-bar-danger" role="progressbar" id="cacheSaveTime">
+                                        Cache Save
+                                    </div>
+                                    <div class="progress-bar" role="progressbar" id="cacheRetrieveTime" style="background-color: purple !important;">
+                                        Cache Retrieve
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../vendor/jquery/jquery.min.js"></script>
+<script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../vendor/metisMenu/metisMenu.min.js"></script>
+<script src="../dist/js/sb-admin-2.js"></script>
+<script src="../js/bootstrap-notify.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css">
+<script type="text/javascript" src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+<script>
+    var socket = io();
+    var xhttpDep = new XMLHttpRequest();
+    var gbXhttp = new XMLHttpRequest();
+    let gbRunning = false;
+    socket.on('progress', function(msg){
+        $('#pbLi').css("display", "block");
+        const $inputProgress = $('.inputProgress');
+        const $pb = $('.pb');
+        const $taskComp = $('.taskComp');
+        $inputProgress.css("visibility", "");
+        $inputProgress.css("display", "block");
+        $pb.attr('aria-valuenow', (msg * 100).toFixed(1));
+        $pb.css('width', (msg * 100).toFixed(1) + "%");
+        $taskComp.html((msg * 100).toFixed(1) + "%");
+        let finished = false;
+        if(msg*100 >= 99){
+            if(!finished) {
+                $taskComp.html('Completed!');
+                $.notify({
+                    // options
+                    message: 'Data import completed!'
+                }, {
+                    // settings
+                    type: 'success',
+                    placement: {
+                        from: "top",
+                        align: "right"
+                    },
+                    allow_dismiss: true,
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    },
+                    delay: 1000,
+                    timer: 1000
+                });
+                finished = true;
+            }
+        }
+    });
+
+    socket.on('DONE', function(msg){
+        if(msg === "TRUE"){
+            xhttpDep.abort();
+        } else {
+            xhttpDep = new XMLHttpRequest();
+        }
+    });
+
+    socket.on('gb_results', function(msg){
+        $("#outputGB").val(msg);
+    });
+
+    socket.on('view_results', function(msg){
+        gbXhttp = null;
+        $("#outputView").val(msg);
+    });
+
+    let fl = "";
+    const $fileInput = document.getElementById('dataset');
+    $fileInput.addEventListener('change', function (event) {
+        if(event.target.files.length > 0){
+            fl = event.target.files[0];
+            $("#addFactFromFile").removeClass("disabled");
+        }
+    }, false);
+
+    $(document).on('click', '#addFactFromFile', function(){
+        addFactFromFile();
+    });
+
+    $(document).on('click', '#buttonGet', function(){
+        getFactById($("#factId").val());
+    });
+
+    $(document).on('click', '#buttonFetchView', function(){
+        gbRunning = true;
+        fetchViewByName($("#viewName").val())
+    });
+
+    $(document).on('click', '#buttonGetAll', function(){
+        getAllFacts();
+    });
+
+    function addFactFromFile() {
+        xhttpDep.onreadystatechange = function () {
+            let $status =  $('#status');
+            $('.inputProgress').css('visibility','');
+            if (this.readyState <= 3) {
+                $status.html("Importing data...");
+            }
+            if (this.readyState === 4 && this.status === 200) {
+                $status.html("Data imported: " + this.responseText);
+                $status.css({"color": 'green', "font-weight": "bold"});
+                $("#prompt").remove();
+            } else if (this.status === 400) {
+                $status.html("Error while importing data");
+                $status.css({"color": 'red'});
+            }
+        };
+
+        xhttpDep.ontimeout = function (e) {
+            xhttpDep.abort();
+        };
+        xhttpDep.open("GET", "/load_dataset/" + fl.name, true);
+        xhttpDep.send();
+    }
+
+
+    let crnContractDeployed = <%-JSON.stringify(template)%>;
+    $( "#addFact" ).click(function() {
+        let factPayload = {};
+        for(var i = 0; i < crnContractDeployed.properties.length; i++){
+            let crnKey = crnContractDeployed.properties[i];
+            factPayload[crnKey['key']] =  $("#" + crnKey.key).val();
+        }
+        addFact(factPayload);
+    });
+
+    function getAllFacts() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                $("#outputGet").val(this.responseText);
+            }
+        };
+        xhttp.open("GET", "/allfacts/", true);
+        xhttp.send();
+    }
+
+    function fetchViewByName(viewName) {
+        $('#steps').html('');
+       gbXhttp = new XMLHttpRequest();
+        gbXhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                var editedResp = this.responseText.replace(/\\/g, '');
+                $("#outputView").val(editedResp.replace('"{', "'{").replace('}"', "}'"));
+                let edited = editedResp.replace(/"{/g, "'{").replace(/}"/g, "}'");
+                let splited = edited.split("':");
+                let meta = splited[splited.length - 1].split(",");
+                let usefullMetaIndex = -1;
+                let sqlTimeIndex = -1;
+                let bcTimeIndex = -1;
+                let cacheTimeIndex = -1;
+                let totalTimeIndex = -1;
+                let allTotalTimeIndex = -1;
+                let cacheRetrieveIndex = -1;
+                let matStepsIndex = -1;
+                for(let i =0; i < meta.length; i++){
+                    if(meta[i].indexOf("operation") >= 0){
+                        usefullMetaIndex = i;
+                    }
+                    if(meta[i].indexOf("sqlTime") >= 0){
+                        sqlTimeIndex = i;
+                    }
+                    if(meta[i].indexOf("bcTime") >= 0){
+                        bcTimeIndex = i;
+                    }
+                    if(meta[i].indexOf("cacheSaveTime") >= 0){
+                        cacheTimeIndex = i;
+                    }
+                    if(meta[i].indexOf("cacheRetrieveTime") >= 0){
+                        cacheRetrieveIndex = i;
+                    }
+                    if(meta[i].indexOf("totalTime") >= 0){
+                        totalTimeIndex = i;
+                    }
+                    if(meta[i].indexOf("allTotal") >= 0){
+                        allTotalTimeIndex = i;
+                    }
+
+                    if(meta[i].indexOf("matSteps") >= 0){
+                        matStepsIndex = i;
+                    }
+                }
+                let cacheRetrieveTime = 0;
+                let totalTime = 0;
+                let bcTime = 0;
+                let sqlTime = 0;
+                let cacheSaveTime = 0;
+                let allTotalTime = 0;
+                let matSteps = [];
+
+                if(cacheRetrieveIndex > -1){
+                    cacheRetrieveTime =  parseFloat(meta[cacheRetrieveIndex].split(":")[1]);
+                }
+                if(totalTimeIndex > -1){
+                    totalTime =  parseFloat(meta[totalTimeIndex].split(":")[1]);
+                }
+                if(bcTimeIndex > -1){
+                    bcTime =  parseFloat(meta[bcTimeIndex].split(":")[1]);
+                }
+                if(sqlTimeIndex > -1){
+                    sqlTime =  parseFloat(meta[sqlTimeIndex].split(":")[1]);
+                }
+                if(cacheTimeIndex > -1){
+                    cacheSaveTime =  parseFloat(meta[cacheTimeIndex].split(":")[1]);
+                }
+                if(allTotalTimeIndex > -1){
+                    allTotalTime =  parseFloat(meta[allTotalTimeIndex].split(":")[1]);
+                }
+                if(matStepsIndex > -1){
+                    let stringiFiedMatSteps = '{';
+                    for(let i = matStepsIndex; i < meta.length; i++){
+                        if(i < meta.length-1) {
+                            stringiFiedMatSteps += meta[i] + ",";
+                        } else {
+                            stringiFiedMatSteps += meta[i];
+                        }
+                    }
+                    let $steps = $('#steps');
+                    matSteps = JSON.parse(stringiFiedMatSteps);
+                    for (let j = 0; j < matSteps.matSteps.length; j++) {
+                        $steps.append("<p style='font-weight: bold; font-size: 1.5em'>Step " + (j + 1) + ":</p>");
+                        if(matSteps.matSteps[j].type === 'bcFetch') {
+                            $steps.append("<p style='font-size: 1.2em'>Fetched " +  matSteps.matSteps[j].numOfFacts + " facts from blockchain</p>");
+                        } else if (matSteps.matSteps[j].type === 'sqlCalculationInitial') {
+                            $steps.append("<p style='font-size: 1.2em'>Calculated the view in SQL for all the facts</p>");
+                        } else if (matSteps.matSteps[j].type === 'cacheSave') {
+                            $steps.append("<p style='font-size: 1.2em'>Saved the result in cache</p>");
+                        } else if (matSteps.matSteps[j].type === 'bcFetchDeltas') {
+                            $steps.append("<p style='font-size: 1.2em'>Fetched " +  matSteps.matSteps[j].numOfFacts + " deltas from blockchain</p>");
+                        } else if (matSteps.matSteps[j].type === 'sqlCalculationDeltas') {
+                            $steps.append("<p style='font-size: 1.2em'>Calculated the view in SQL for the deltas</p>");
+                        } else if (matSteps.matSteps[j].type === 'cacheFetch') {
+                            $steps.append("<p style='font-size: 1.2em'>Fetched older result from cache</p>");
+                        } else if (matSteps.matSteps[j].type === 'sqlReduction') {
+                            $steps.append("<p style='font-size: 1.2em'>Reduced previous cached result from " + matSteps.matSteps[j].from + " to " + matSteps.matSteps[j].to + "</p>");
+                        } else if (matSteps.matSteps[j].type === 'sqlMergeReducedCachedWithDeltas') {
+                            $steps.append("<p style='font-size: 1.2em'>Merged reduced cached result with the result calculated for deltas</p>");
+                        } else if (matSteps.matSteps[j].type === 'sqlMergeCachedWithDeltas') {
+                            $steps.append("<p style='font-size: 1.2em'>Merged cached result with the result calculated for deltas</p>");
+                        }
+                    }
+                }
+
+                $('#total').html(totalTime.toFixed(5));
+                $('#allTotal').html(allTotalTime.toFixed(5));
+                $('#bc').html(bcTime.toFixed(5));
+                $('#sql').html(sqlTime.toFixed(5));
+                $('#cacheSave').html(cacheSaveTime.toFixed(5));
+                $('#cacheRetrieve').html(cacheRetrieveTime.toFixed(5));
+
+                $('.progress').css("visibility","");
+                $('#bcTime').css("width",(bcTime / totalTime)*100 + "%");
+                $('#cacheSaveTime').css("width",(cacheSaveTime / totalTime)*100 + "%");
+                $('#cacheRetrieveTime').css("width",(cacheRetrieveTime / totalTime)*100 + "%");
+                $('#sqlTime').css("width",(sqlTime / totalTime)*100 + "%");
+                for(let i = 0; i < splited.length; i ++){
+                    let secondSplit = [];
+                    secondSplit = splited[i].split(",'");
+                    splited[i] = secondSplit;
+                }
+                let flattenedArray = [];
+                splited[splited.length - 1][0] = splited[splited.length - 1][0].split(",")[0];
+                for(let i = 0; i < splited.length; i++){
+                    let crnArr = splited[i];
+                    for(let j = 0; j < crnArr.length; j++){
+                        flattenedArray.push(crnArr[j])
+                    }
+                }
+                flattenedArray[0] = flattenedArray[0].replace("{'","");
+                let keys = Object.keys(JSON.parse(flattenedArray[0]));
+                for(let i = 0 ; i < flattenedArray.length; i+=2){
+                    flattenedArray[i] = JSON.parse(flattenedArray[i])
+                }
+
+                let table_body = '<table class="table table-bordered" id="dt">';
+                table_body += '<thead>';
+                table_body += '<tr>';
+                for(let j=0;j<keys.length ;j++){
+                    table_body += '<th style="text-weight: bold; text-align: center;">' + keys[j] + '</th>';
+                }
+                table_body += '<th>Value</th>';
+                table_body += '</tr>';
+                table_body += '</thead>';
+                table_body += '<tbody>';
+                for(let i=0;i<flattenedArray.length;i+=2){
+                    table_body+='<tr>';
+                    for(let j=0;j<keys.length;j++){
+                        let crnKey = keys[j];
+                        table_body +='<td>';
+                        table_body +=flattenedArray[i][crnKey];
+                        table_body +='</td>';
+                    }
+                    table_body +='<td>' + flattenedArray[i+1] + '</td>';
+                    table_body+='</tr>';
+                }
+                table_body += '</tbody>';
+                table_body+='</table>';
+                $('.tblResults').html(table_body);
+                $('#dt').dataTable( {
+                    "paging": true,
+                    "pageLength": 10
+                });
+                gbXhttp = null;
+            }
+        };
+        gbXhttp.ontimeout = function (e) {
+            console.log('TIMEOUT');
+            gbXhttp.abort();
+        };
+        gbXhttp.open('GET', '/getViewByName/' + viewName + '/' +'<%= name %>', true);
+        gbXhttp.send();
+    }
+
+function getFactById(id) {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            $('#outputGet').val(this.responseText);
+        }
+    };
+    xhttp.open('GET', '/getFactById/' + id, true);
+    xhttp.send();
+}
+    function addFact(factPayload) {
+        let xhttp = new XMLHttpRequest();
+        xhttp.open('POST', '/addFact', true);
+        xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                $('#output').val(this.responseText);
+            }
+        };
+        xhttp.send(JSON.stringify(factPayload));
+    }
+</script>
+</html>
