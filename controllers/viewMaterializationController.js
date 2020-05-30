@@ -25,7 +25,12 @@ function calculateForDeltasAndMergeWithCached (mostEfficient, latestId, createTa
         
         //console.log(mostEfficient.latestFact);
         //console.log('from: '+Number(mostEfficient.latestFact)+' to: '+Number(latestId)+' '+(Number(latestId)-Number(mostEfficient.latestFact)));
-        computationsController.getFactsFromToSql(Number(mostEfficient.latestFact)+1, Number(latestId)).then(async deltas => {
+        computationsController.getFactsFromToSql(Number(mostEfficient.latestFact), Number(latestId)).then(async deltas => {
+            console.log('***Merge with cached ***');
+            console.log('from: '+(Number(mostEfficient.latestFact))+' to: '+Number(latestId))
+            d_length=deltas.length;
+            console.log('length: '+d_length);
+
             const bcTimeEnd = helper.time();
             matSteps.push({ type: 'bcFetchDeltas', numOfFacts: deltas.length });
             await computationsController.executeQuery(createTable).then(async results => {
@@ -80,7 +85,7 @@ function calculateForDeltasAndMergeWithCached (mostEfficient, latestId, createTa
                                         const rowsRes = helper.extractGBValues(mergeResult,view);
                                         const type='MergeReducedCachedWithDeltas'
                                         //helper.cacheNow(mergeResult,'Added new GB Beggining',stringify(view.name))
-                                        create_recordJSON(cachedGroupBy,deltas,rowsRes,stringify(view.name),type);
+                                        create_recordJSON(cachedGroupBy,d_length,rowsRes,stringify(view.name),type);
                                         //console.log('after json record');
                                         if (gbSize / 1024 <= config.maxCacheSizeInKB) {
                                     
@@ -156,7 +161,7 @@ function calculateForDeltasAndMergeWithCached (mostEfficient, latestId, createTa
                                     totalStart: totalStart };
 
                                 await mergeCachedWithDeltasResultsSameFields(view, cachedGroupBy,
-                                    groupBySqlResult, latestId, sortedByEvictionCost, times).then(result => {
+                                    groupBySqlResult, latestId, sortedByEvictionCost,d_length, times).then(result => {
                                     matSteps.push({ type: 'sqlMergeCachedWithDeltas','cached':cachedGroupBy.length });
                                     result.matSteps = matSteps;
                                     //console.log('aaaaaaa');
@@ -259,7 +264,7 @@ function reduceGroupByFromCache (cachedGroupBy, view, gbFields, sortedByEviction
     });
 }
 
-function mergeCachedWithDeltasResultsSameFields (view, cachedGroupBy, groupBySqlResult, latestId, sortedByEvictionCost, times) {
+function mergeCachedWithDeltasResultsSameFields (view, cachedGroupBy, groupBySqlResult, latestId, sortedByEvictionCost,d_length ,times) {
     return new Promise((resolve, reject) => {
         const viewMeta = helper.extractViewMeta(view);
         const rows = helper.extractGBValues(cachedGroupBy, view);
@@ -284,7 +289,7 @@ function mergeCachedWithDeltasResultsSameFields (view, cachedGroupBy, groupBySql
             //console.log('rowsres '+rowsRes.length);
             const type='mergeCachedWithDeltasResultsSameFields'
             
-            create_recordJSON(cachedGroupBy,rowsDelta,rowsRes,stringify(view.name),type);
+            create_recordJSON(cachedGroupBy,d_length,rowsRes,stringify(view.name),type);
             const gbSize = stringify(mergeResult).length;
             //console.log('gbSize '+gbSize);
             if (gbSize / 1024 <= config.maxCacheSizeInKB) {
@@ -437,12 +442,15 @@ function clearCacheIfNeeded (sortedByEvictionCost, groupBySqlResult, sameOldestR
         
         // console.log("clear cache if needed")
         // console.log('0. '+sortedByEvictionCost.length);
+        //helper.fileGbs(sortedByEvictionCost,stringify(groupBySqlResult.viewName),'Currently');
         for (let i = 0; i < sortedByEvictionCost.length; i++) {
             totalCurrentCacheLoad += parseInt(sortedByEvictionCost[i].size);
         }
-        helper.cacheNow(sortedByEvictionCost,"Entire",(totalCurrentCacheLoad+stringify(groupBySqlResult).length));
+        helper.cacheNow(sortedByEvictionCost,"Entire");
         //helper.cacheNow(sortedByEvictionCost,'clear cache if needed',String(totalCurrentCacheLoad/1024));
         //console.log('current cache load '+totalCurrentCacheLoad/1024);
+        
+            //helper.fileGbs(sortedByEvictionCostFiltered,view,'Evict');
         
         helper.log('CURRENT CACHE LOAD = ' + totalCurrentCacheLoad + ' Bytes OR ' + (totalCurrentCacheLoad / 1024) + ' KB');
         // console.log('before if');
@@ -482,11 +490,13 @@ function clearCacheIfNeeded (sortedByEvictionCost, groupBySqlResult, sameOldestR
 
             
             //console.log('need to evict')
+            
             for (let k = i; k < copy_array.length; k++) {
                 sortedByEvictionCostFiltered.push(copy_array[k]);  //possible error because this element already in sortedByEvictionCostFiltered
                 helper.log('Evicted view ' + copy_array[k].columns+' with size: ' +(parseInt(copy_array[k].size)/1024)+' and cost: '+copy_array[k].cacheEvictionCost)
             }
-            //console.log('time to evict');
+            helper.cacheNow(sortedByEvictionCostFiltered,'Evict')
+                        //console.log('time to evict');
             helper.log('TOTAL SIZE = ' + totalSize);
             helper.log('GB SIZE = ' + gbSize);
             const tot = (totalSize + gbSize);
@@ -776,18 +786,26 @@ async function materializeView (view, contract, totalStart, createTable) {
 function create_recordJSON(rowsCache,rowsBC,rowsResult,viewName,type){
     //console.log('inside json');
     var cache_recs=0;
+    var bc_recs=0;
     if(rowsCache!=undefined){
-        cache_recs=Object.keys(rowsCache).length;
+        if(Object.keys(rowsCache).length>0){
+            cache_recs=Object.keys(rowsCache).length-5;
+        }
+    }
+    if(type=='MergeReducedCachedWithDeltas' || type=="mergeCachedWithDeltasResultsSameFields"){
+        bc_recs=rowsBC;
+    }else{
+        bc_recs=rowsBC.length;
     }
     var record = {
         "cacheRecords":cache_recs,
-        "bcRecords":rowsBC.length,
+        "bcRecords":bc_recs,
         "resultRecords":rowsResult.length,
         "viewName":viewName,
         "type":type
     }
     
-    fs.appendFile(__dirname+'/../resRecords/q52CD40p.json', JSON.stringify(record)+', \n', function (err) {
+    fs.appendFile(__dirname+'/../resRecords/W3q1000CF40an600p.json', JSON.stringify(record)+', \n', function (err) {
         if (err) throw err;
         //console.log('Saved!');
       });
