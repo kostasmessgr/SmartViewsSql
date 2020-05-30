@@ -6,8 +6,8 @@ const generate = async function (a, b) {
     let p3 = '.json';
     let low = String(a);
     let all = [];
-    a=100000+a;
-    b=100000+b;
+    //a=1000000+a;
+    //b=1000000+b;
     console.log(a+' '+b);
     for (let i = a; i < b; i++) {
         for (let j = 0; j < 1; j++) {
@@ -21,17 +21,17 @@ const generate = async function (a, b) {
             console.log(i);
         }
     }
-    // await fs.writeFile('./test_data/benchmarks100000/benchmarks500/' + low + p3, JSON.stringify(all), function (err) {
+    // await fs.writeFile('./test_data/benchmarks1000/' + low + p3, JSON.stringify(all), function (err) {
     //     if (err) {
-    //         return console.log(err);
-    //     }
+    //        return console.log(err);
+    //    }
     // });
+
     return low + p3;
 };
 
 const main = async()=>{
     generate(0,100000);
 }
-
 
 module.exports = { generate };

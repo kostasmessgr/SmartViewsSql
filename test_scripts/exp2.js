@@ -1,10 +1,10 @@
 const fs = require('fs');
 let path = require('path');
-const filename = './../queriesNWQ52.txt';
+const filename = './../queriesNW1003.txt';
 const generator = require('./testDataGenerator');
-const dir = '../test_data/benchmarks100000/benchmarks500/';
+const dir = '../test_data/benchmarks100000/benchmarks1000/';
 const Promise = require('promise');
-const ResultsFile = 'result_final_DataCubeDistance_1000D.json';
+const ResultsFile = 'result_final_DataCubeDistance_1000D1.json';
 const rp = require('request-promise');
 
 const load = (file) => {
@@ -108,7 +108,7 @@ const main = async () => {
             .then(async (res) => {
                 let fns = [];
                 const queries = res.split(',');
-                for (let i = 1; i <= 500; i++) {
+                for (let i = 1; i <= 1000; i++) {
                     let crnFN = await generator.generate(10000+(100 * (i - 1)),10000+ (100 * i));
                     fns.push(crnFN);
                     // return array with filenames, then filter the ones read from the directory
