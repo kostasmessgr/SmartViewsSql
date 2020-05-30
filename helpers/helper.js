@@ -399,21 +399,27 @@ function assignTimes (result, times) {
 }
 
 function findSameOldestResults (sortedByEvictionCost, view) {
+    // if(sortedByEvictionCost.length>0){
+    //     fileGbs(sortedByEvictionCost,view,'Check for older views');
+    // }
     let sameOldestResults = [];
     var name = JSON.stringify(view.name);
-    var f2 =name.substring(0,name.indexOf('('));
+    var f2 =name.substring(1,name.indexOf('('));
     for (let i = 0; i < sortedByEvictionCost.length; i++) {
         const crnRes = sortedByEvictionCost[i];
         var fields = JSON.stringify(crnRes.columns);
         f1=fields.substring(fields.indexOf('[')+1,fields.indexOf(']'));
-        f1 = f1.replace(',','');
+        f1 = f1.replace(/,/g,'');
         var aggr = JSON.stringify(crnRes.aggrFunc);
         aggr=aggr.replace(/"/g,'');
-
-        if (JSON.stringify(f1) === JSON.stringify(f2)&& aggr==view.operation) {
+        //checks(JSON.stringify(f1),JSON.stringify(f2),aggr,view.operation)
+        if (JSON.stringify(f1) == JSON.stringify(f2)&& aggr==view.operation) {
             sameOldestResults.push(crnRes);
             //console.log(true);
         }
+        // if(sameOldestResults.length>0){
+        //     fileGbs(sameOldestResults,view,'sameOldestResults found')
+        // }
         
     }
     return sameOldestResults;
@@ -462,9 +468,9 @@ function createStruct(crnHash, latestId, colSize, resultSize, columns,aggrFunc,t
     return struct;
 }
 
-function cacheNow(groupBys,action,count){
+function cacheNow(groupBys,action){
     
-    //var data=""+action;
+    var data=" "+action+'\n';
     //console.log('cache now \n');
     k++;
     //console.log(JSON.stringify(groupBys));
@@ -473,27 +479,61 @@ function cacheNow(groupBys,action,count){
     // for(i;i<parseInt(JSON.stringify(count));i++){
     //     size+= groupBys[i].size;
     // }
-    //for(i;i<groupBys.length;i++){
-        //console.log('str:'+JSON.stringify(groupBys[i]));
-        //const meta = JSON.parse(groupBys[i].columns);
-        //const hash = JSON.parse(groupBys[i].hash);
-     var data='cache size '+(count/1024)+'\n';
+    console.log(groupBys.length);
+    for(i;i<groupBys.length;i++){
+        console.log('str:'+JSON.stringify(groupBys[i]));
+        //const meta = JSON.parse(groupBys[i]);
+        //const hash = JSON.parse(groupBys[i]);
+     //var data='cache size '+(count/1024)+'\n';
         // //const meta2 = JSON.parse(groupBys[i].cacheEvictionCost);
-        // if(config.cacheEvictionPolicy=='cubeDistance'){
-        //     data+=i+' '+JSON.stringify(meta.fields)+" "+groupBys[i].dataCubeDistance+"\n";    
-        // }else if(config.cacheEvictionPolicy=='costFunction'){
-        //     data+=i+' '+JSON.stringify(meta.fields)+" "+groupBys[i].cacheEvictionCost+"\n";
-        // }else{
-        //     data+=i+' '+JSON.stringify(groupBys[i])+" ";//+groupBys[i].gbTimestamp+"\n";
-        // }
-    //}
+        if(config.cacheEvictionPolicy=='cubeDistance'){
+            data+=i+' '+JSON.stringify(groupBys[i])+" "+groupBys[i].dataCubeDistance+"\n";    
+        }else if(config.cacheEvictionPolicy=='costFunction'){
+            data+=i+' '+JSON.stringify(meta.fields)+" "+groupBys[i].cacheEvictionCost+"\n";
+        }else{
+            data+=i+' '+JSON.stringify(groupBys[i])+" ";//+groupBys[i].gbTimestamp+"\n";
+        }
+    }
     
-    fs.appendFile(__dirname+'/../cacheRecords/q52CD40p.json', data+'\n', function (err) {
+    fs.appendFile(__dirname+'/../cacheRecords/W1q1000CD3022p.json', data+'\n', function (err) {
         if (err) throw err;
         //console.log('Saved!');
       });
       //console.log('json appended');
 }
+
+function fileGbs(groupBys,view,action){
+    
+    
+    let i=0;
+    let size=0;
+    var data='action: '+action+'\n current view: '+JSON.stringify(view)+'\n';
+    for(i;i<groupBys.length;i++){
+      data+=JSON.stringify(groupBys[i])+'\n';
+    }
+    
+    fs.appendFile(__dirname+'/../cacheRecords/q22testsameOldest.json', data+'\n', function (err) {
+        if (err) throw err;
+        //console.log('Saved!');
+      });
+      //console.log('json appended');
+}
+function checks(str1,str2,str3,str4,val){
+    
+    
+    let i=0;
+    let size=0;
+    var data='V1 '+str1+'  v2: '+str2+'\n';
+    data+='aggr1 '+str3+'  aggr2: '+str4+'\n';
+    data+='result: '+val+'\n';
+    
+    fs.appendFile(__dirname+'/../cacheRecords/q52checkOldest.json', data+'\n', function (err) {
+        if (err) throw err;
+        //console.log('Saved!');
+      });
+      //console.log('json appended');
+}
+
 
 function materializes(gby,view){
     var columnsGby=JSON.stringify(gby.columns);
@@ -538,6 +578,7 @@ module.exports = {
     time: time,
     log: log,
     cacheNow:cacheNow,
+    fileGbs:fileGbs,
     requireUncached: requireUncached,
     mergeSlicedCachedResult: mergeSlicedCachedResult,
     extractGBValues: extractGBValues,

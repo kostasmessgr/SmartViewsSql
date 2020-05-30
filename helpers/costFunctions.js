@@ -13,7 +13,7 @@ function costMat (V, Vc, latestFact) {
         if (isMaterializableFrom(V, Vi)) {
             const sizeDeltas = latestFact - Number.parseInt(Vi.latestFact); // latestFact is the latest fact written in bc
             const sizeCached = Number.parseInt(Vi.size);
-            V.calculationCost = 450 * sizeDeltas + sizeCached;
+            V.calculationCost = 600 * sizeDeltas + sizeCached;
             costs.push(V);
         }
     }
