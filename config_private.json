@@ -1,9 +1,9 @@
 {
     "recordsSlice": 1000,
-    "cacheEvictionPolicy": "cubeDistance",
+    "cacheEvictionPolicy": "costFunction",
     "calculationCostFunction": "costFunction",
     "maxCacheSize": 1000000000000,
-    "maxCacheSizeInKB": 759180,
+    "maxCacheSizeInKB": 77165,
     "cacheSlice": 2,
     "autoCacheSlice": "auto",
     "maxGbSize": 100000,

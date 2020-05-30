@@ -138,7 +138,7 @@ app.get('/deployContract/:fn', function (req, res) {
 });
 
 app.get('/load_dataset/:dt', contractController.contractChecker, function (req, res) {
-    let dt = require('./test_data/benchmarks100000/benchmarks100/' + req.params.dt);
+    let dt = require('./test_data/benchmarks10000/benchmarks100/' + req.params.dt);
     if (!running) {
         // a guard to check that this asynchronous process will not start again if called while loading data
         running = true;
@@ -160,7 +160,7 @@ app.get('/load_dataset/:dt', contractController.contractChecker, function (req, 
 });
 
 app.get('/load_dataset_sql/:dt', contractController.contractChecker, function (req, res) {
-    let dt = require('./test_data/benchmarks100000/benchmarks500/' + req.params.dt);
+    let dt = require('./test_data/benchmarks100000/benchmarks1000/' + req.params.dt);
     console.log('load dataset indedx '+req.params.dt);
     if (!running) {
         // a guard to check that this asynchronous process will not start again if called while loading data
@@ -270,23 +270,23 @@ app.get('/getViewByName/:viewName/:contract', contractController.contractChecker
         res.status(200);
         return res.send({ status: 'ERROR', message: 'view not found' });
     }
-    console.log('update frequency');
+    //console.log('update frequency');
     await helper.updateViewFrequency(factTbl, req.params.contract, view.id);
-    console.log('after view frequency');
-    console.log(!gbRunning );
-    console.log(!running);
+    //console.log('after view frequency');
+    //console.log(!gbRunning );
+    //console.log(!running);
     if (!gbRunning && !running) {
         gbRunning = true;
-        console.log('time for materializing');
+        //console.log('time for materializing');
         viewMaterializationController.materializeView(view,
             req.params.contract, totalStart, createTable)
             .then(result => {
-                console.log(result);
+                //console.log(result);
                 //console.log(result==undefined);
                 gbRunning = false;
                 res.status(200);
                 io.emit('view_results', stringify(result).replace(/\\/g, ''));
-                console.log('to send from index result: '+stringify(result));
+                //console.log('to send from index result: '+stringify(result));
                 return res.send(stringify(result).replace(/\\/g, ''));
             }).catch(err => {
                 /* istanbul ignore next */
